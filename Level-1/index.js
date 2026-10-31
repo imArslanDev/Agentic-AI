@@ -1,3 +1,5 @@
+// LLM Integration Using SDK:
+/*
 import express from "express";
 import dotenv from "dotenv";
 import { GoogleGenAI } from "@google/genai";
@@ -64,4 +66,48 @@ app.get("/", (req, res) => {
 app.listen(PORT, () => {
   console.log(`App is listening on PORT:${PORT}`);
 //   callGemini();
+});
+
+*/
+
+// LLM Integration uisng LangGraph
+
+import express from "express";
+import dotenv from "dotenv";
+import { ChatGoogle } from "@langchain/google";
+import { ChatGroq } from "@langchain/groq"
+
+dotenv.config();
+
+const app = express();
+const PORT = process.env.PORT || 5000;
+
+app.use(express.json());
+
+app.post("/chat", async (req, res) => {
+  const { prompt } = req.body;
+  const model = new ChatGroq({
+    // model: "gemini-3.5-flash-lite",
+    model: "openai/gpt-oss-120b",
+    // Temprature 0 sa 2 ka drmyan set kr skta ha
+    // 0 sa 1 ke drmyan set krne pr kafi focused answer deta ha
+    // 1 sa 2 ke drmyan set krne pr randomly creative answer deta ha
+    temperature: 0.5,
+    // maxOutputTokens: 100
+  });
+  const result = await model.invoke([
+    {
+        role: "system",
+        content: "You're Jarvis My Assistent"
+    },
+    {
+        role: "human",
+        content: prompt
+    }
+  ]);
+  return res.json(result.content);
+});
+
+app.listen(PORT, () => {
+  console.log(`App is listening on PORT:${PORT}`);
 });
